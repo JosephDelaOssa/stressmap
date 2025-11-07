@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>StressMap Bot</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="chat-container">
+    <div id="chat-box">
+        <p class="bot">🤖 ¡Hola! Bienvenido al check-in de bienestar StressMap.</p>
+        <p class="bot">Responde las siguientes preguntas del 1 al 5.</p>
+        <button onclick="startSurvey()">Iniciar encuesta</button>
+    </div>
+</div>
+
+<div class="dashboard">
+    <h2>📊 Dashboard StressMap</h2>
+    <canvas id="stressChart"></canvas>
+</div>
+
+<script src="chart.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
