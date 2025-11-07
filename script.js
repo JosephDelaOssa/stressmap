@@ -47,9 +47,35 @@ function calculateRisk() {
 
 function saveToLocal(value) {
     let data = JSON.parse(localStorage.getItem("stressData")) || [];
+
+    // Fecha actual
+    let now = new Date();
+
+    // Guardar fecha de inicio si no existe
+    if(!localStorage.getItem("startDate")){
+        localStorage.setItem("startDate", now);
+    }
+
     data.push(value);
     localStorage.setItem("stressData", JSON.stringify(data));
+
+    checkMonthReset();
 }
+
+function checkMonthReset() {
+    let start = new Date(localStorage.getItem("startDate"));
+    let now = new Date();
+
+    let diff = now - start;
+    let days = diff / (1000 * 60 * 60 * 24);
+
+    if (days >= 30) {
+        localStorage.clear();
+        alert("Nuevo mes 💡 Los datos anteriores se han reseteado.");
+        location.reload();
+    }
+}
+
 
 function updateDashboard() {
     let data = JSON.parse(localStorage.getItem("stressData")) || [];
@@ -75,3 +101,10 @@ function showBotMessage(msg) {
 function showUserMessage(msg) {
     document.getElementById("chat-box").innerHTML += `<p class="user">${msg}</p>`;
 }
+
+function resetData() {
+    localStorage.clear();
+    alert("Datos borrados correctamente");
+    location.reload();
+}
+
