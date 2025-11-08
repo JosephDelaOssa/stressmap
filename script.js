@@ -3,7 +3,7 @@ let answers = [];
 let questions = [
     "1️⃣ ¿Cómo fue tu nivel de energía hoy? (1–5)",
     "2️⃣ ¿Qué tan estresado te sentiste? (1–5)",
-    "3️⃣ ¿Tu motivación fue adecuada? (1–5)",
+    "3️⃣ ¿Cómo calificarías tu nivel de motivación hoy? (1–5)",
     "4️⃣ ¿Cómo calificas tu sueño? (1–5)",
     "5️⃣ ¿Sentiste sobrecarga? (1–5)"
 ];
