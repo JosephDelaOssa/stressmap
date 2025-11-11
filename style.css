@@ -39,3 +39,24 @@ body {
     height: 500px;
     box-shadow: 0 0 8px rgba(0,0,0,0.2);
 }
+.emoji-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.emoji-btn {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    background: #e9ecef;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.emoji-btn:hover {
+    background: #cfe2ff;
+    transform: scale(1.1);
+}
+
