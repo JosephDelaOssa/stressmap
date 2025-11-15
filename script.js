@@ -3,21 +3,22 @@ let answers = [];
 
 // Banco de preguntas (puedes agregar más)
 let questionBank = [
-// MAYOR IMPORTANCIA
-    "¿Qué tan sobrecargado te sentiste?",
-    "¿Sentiste apoyo del equipo?",
-    "¿Qué tan estresado te sentiste?",
+    // Alta importancia (peso 3)
+    { text: "¿Qué tan sobrecargado te sentiste?", weight: 3 },
+    { text: "¿Sentiste apoyo del equipo?", weight: 3 },
+    { text: "¿Qué tan estresado te sentiste?", weight: 3 },
 
-// IMPORTANCIA MEDIA
-    "¿Sentiste que tu trabajo fue valorado?",
-    "¿Qué tan bien manejaste los desafíos hoy?",
-    "¿Cómo fue tu nivel de energía hoy?",
+    // Media importancia (peso 2)
+    { text: "¿Sentiste que tu trabajo fue valorado?", weight: 2 },
+    { text: "¿Qué tan bien manejaste los desafíos hoy?", weight: 2 },
+    { text: "¿Cómo fue tu nivel de energía hoy?", weight: 2 },
 
-// MENOR IMPORTANCIA
-    "¿Calificarías tu motivación como adecuada?",
-    "¿Cómo calificas tu sueño?",
-    "¿Te costó concentrarte hoy?"
+    // Baja importancia (peso 1)
+    { text: "¿Calificarías tu motivación como adecuada?", weight: 1 },
+    { text: "¿Cómo calificas tu sueño?", weight: 1 },
+    { text: "¿Te costó concentrarte hoy?", weight: 1 }
 ];
+
 
 let selectedQuestions = [];
 
@@ -32,9 +33,10 @@ function pickRandomQuestions() {
     }
 }
 
+
 function startSurvey() {
     pickRandomQuestions();
-    showBotMessage(selectedQuestions[step]);
+    showBotMessage(selectedQuestions[step].text);
     showEmojiOptions();
 }
 
@@ -57,7 +59,7 @@ function registerAnswer(value) {
 
     if (step < selectedQuestions.length) {
         setTimeout(() => {
-            showBotMessage(selectedQuestions[step]);
+            showBotMessage(selectedQuestions[step].text);
             showEmojiOptions();
         }, 500);
 
@@ -67,17 +69,26 @@ function registerAnswer(value) {
 }
 
 function calculateRisk() {
-    // Promedio simple de 3 preguntas
-    let result = answers.reduce((a,b)=>a+b) / answers.length;
+    let totalWeight = 0;
+    let weightedSum = 0;
+
+    for(let i=0; i<answers.length; i++){
+        weightedSum += answers[i] * selectedQuestions[i].weight;
+        totalWeight += selectedQuestions[i].weight;
+    }
+
+    let result = weightedSum / totalWeight;
 
     showBotMessage("Tu índice de bienestar es: " + result.toFixed(2));
 
     saveToLocal(result);
-    updateDashboard();
+    updateDashboard(result);
+    showRecommendations(result);
 
     step = 0;
     answers = [];
 }
+
 
 function saveToLocal(value) {
     let data = JSON.parse(localStorage.getItem("stressData")) || [];
@@ -127,8 +138,13 @@ function updateDashboard() {
 }
 
 function showBotMessage(msg) {
-    document.getElementById("chat-box").innerHTML += `<p class="bot">${msg}</p>`;
+    showTypingAnimation();
+    setTimeout(() => {
+        removeTypingAnimation();
+        document.getElementById("chat-box").innerHTML += `<p class="bot">${msg}</p>`;
+    }, 900);
 }
+
 function showUserMessage(msg) {
     document.getElementById("chat-box").innerHTML += `<p class="user">${msg}</p>`;
 }
@@ -138,3 +154,50 @@ function resetData() {
     alert("Datos borrados correctamente");
     location.reload();
 }
+
+function showTypingAnimation() {
+    const chat = document.getElementById("chat-box");
+    chat.innerHTML += `<p class="typing">StressMap está escribiendo<span class="dots">...</span></p>`;
+}
+
+function removeTypingAnimation() {
+    const typingEl = document.querySelector(".typing");
+    if (typingEl) typingEl.remove();
+}
+
+function showRecommendations(score){
+    let box = document.getElementById("recommendations");
+
+    if (score < 2.5) {
+        box.innerHTML = `
+            <h3 style="color:#c1121f;">🔴 Riesgo Alto</h3>
+            <p>Recomendaciones:</p>
+            <ul>
+                <li>Realizar pausas activas cada 1–2 horas</li>
+                <li>Evitar sobrecarga laboral hoy</li>
+                <li>Hablar con un líder o compañero de confianza</li>
+                <li>Espacios de respiración guiada 3–5 min</li>
+            </ul>`;
+    }
+    else if (score < 3.8) {
+        box.innerHTML = `
+            <h3 style="color:#ff8c00;">🟠 Riesgo Medio</h3>
+            <p>Recomendaciones:</p>
+            <ul>
+                <li>Tomar un descanso corto de 5 minutos</li>
+                <li>Organizar tareas según prioridad</li>
+                <li>Evitar multitarea excesiva</li>
+            </ul>`;
+    }
+    else {
+        box.innerHTML = `
+            <h3 style="color:#2d6a4f;">🟢 Estado Positivo</h3>
+            <p>Recomendaciones:</p>
+            <ul>
+                <li>Mantén tu rutina saludable</li>
+                <li>Comparte buenas prácticas con tu equipo</li>
+                <li>Realiza pausas activas para mantener equilibrio</li>
+            </ul>`;
+    }
+}
+
