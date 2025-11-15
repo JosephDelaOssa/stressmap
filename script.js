@@ -3,12 +3,19 @@ let answers = [];
 
 // Banco de preguntas (puedes agregar más)
 let questionBank = [
-    "¿Cómo fue tu nivel de energía hoy?",
-    "¿Qué tan estresado te sentiste?",
-    "¿Calificarías tu motivación como adecuada?",
-    "¿Cómo calificas tu sueño?",
+// MAYOR IMPORTANCIA
     "¿Qué tan sobrecargado te sentiste?",
     "¿Sentiste apoyo del equipo?",
+    "¿Qué tan estresado te sentiste?",
+
+// IMPORTANCIA MEDIA
+    "¿Sentiste que tu trabajo fue valorado?",
+    "¿Qué tan bien manejaste los desafíos hoy?",
+    "¿Cómo fue tu nivel de energía hoy?",
+
+// MENOR IMPORTANCIA
+    "¿Calificarías tu motivación como adecuada?",
+    "¿Cómo calificas tu sueño?",
     "¿Te costó concentrarte hoy?"
 ];
 
@@ -111,7 +118,7 @@ function updateDashboard() {
         data: {
             labels: data.map((v,i)=>"Día "+(i+1)),
             datasets: [{
-                label: "Nivel de Bienestar",
+                label: "Nivel de Bienestar Laboral",
                 data: data,
                 borderWidth: 2
             }]
