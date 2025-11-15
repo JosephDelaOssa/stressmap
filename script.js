@@ -1,3 +1,8 @@
+const SUPABASE_URL = "https://dflxsuqiwuqjmmmfsmlp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmbHhzdXFpd3Vxam1tbWZzbWxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMjk5NzQsImV4cCI6MjA3ODgwNTk3NH0.iHNSEok6mLv7Tt3vV_dQgmuXlUFRDFTtJVoY1GIwGLo";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let step = 0;
 let answers = [];
 
@@ -82,12 +87,48 @@ function calculateRisk() {
     showBotMessage("Tu índice de bienestar es: " + result.toFixed(2));
 
     saveToLocal(result);
+    saveToSupabase(result);
     updateDashboard(result);
     showRecommendations(result);
 
     step = 0;
     answers = [];
 }
+
+async function saveToSupabase(score) {
+
+    // 1. Guardamos la encuesta
+    const { data: encuesta, error: e1 } = await db
+        .from("encuestas")
+        .insert([{ resultado: score }])
+        .select("id")
+        .single();
+
+    if (e1) {
+        console.error("Error guardando encuesta:", e1);
+        return;
+    }
+
+    let encuesta_id = encuesta.id;
+
+    // 2. Guardar cada pregunta, peso y respuesta
+    for (let i = 0; i < answers.length; i++) {
+
+        const { error: e2 } = await db
+            .from("preguntas_respuestas")
+            .insert([{
+                encuesta_id,
+                pregunta: selectedQuestions[i].text,
+                peso: selectedQuestions[i].weight,
+                respuesta: answers[i]
+            }]);
+
+        if (e2) console.error("Error guardando pregunta:", e2);
+    }
+
+    console.log("Encuesta guardada exitosamente ✔");
+}
+
 
 
 function saveToLocal(value) {
