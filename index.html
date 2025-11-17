@@ -9,21 +9,24 @@
 </head>
 <body>
 
-<div id="login-box">
-    <h3>Selecciona tu área</h3>
+<div id="areaModal" class="modal">
+  <div class="modal-content">
+      <h2>Selecciona tu Área</h2>
 
-    <select id="user-area">
-        <option value="">Selecciona...</option>
-        <option value="TI">TI</option>
-        <option value="Recursos Humanos">Recursos Humanos</option>
-        <option value="Administración">Administración</option>
-        <option value="Operaciones">Operaciones</option>
-        <option value="Ventas">Ventas</option>
-        <option value="Soporte">Soporte</option>
-    </select>
+      <select id="user-area">
+          <option value="">Selecciona...</option>
+          <option value="TI">TI</option>
+          <option value="Recursos Humanos">Recursos Humanos</option>
+          <option value="Administración">Administración</option>
+          <option value="Operaciones">Operaciones</option>
+          <option value="Ventas">Ventas</option>
+          <option value="Soporte">Soporte</option>
+      </select>
 
-    <button onclick="startSession()">Iniciar</button>
+      <button id="btnStartSession" class="modal-btn">Iniciar</button>
+  </div>
 </div>
+
 
 
 <div class="chat-container">
@@ -44,4 +47,5 @@
 
 <script src="chart.min.js"></script>
 </body>
+
 </html>

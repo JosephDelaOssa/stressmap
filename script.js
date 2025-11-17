@@ -10,6 +10,7 @@ console.log("KEY:", SUPABASE_KEY);
 let step = 0;
 let answers = [];
 
+
 // Banco de preguntas (puedes agregar más)
 let questionBank = [
     // Alta importancia (peso 3)
@@ -31,6 +32,32 @@ let questionBank = [
 
 let selectedQuestions = [];
 
+let userArea = null;
+
+// Mostrar el modal al abrir la página
+window.onload = () => {
+    document.getElementById("areaModal").style.display = "flex";
+
+    document.getElementById("btnStartSession").addEventListener("click", startSession);
+};
+
+function startSession() {
+    const select = document.getElementById("user-area");
+    userArea = select.value;
+
+    if (!userArea) {
+        alert("Por favor selecciona un área.");
+        return;
+    }
+
+    // Ocultar modal
+    document.getElementById("areaModal").style.display = "none";
+
+    // Iniciar encuesta
+    startSurvey();
+}
+
+
 function pickRandomQuestions() {
     selectedQuestions = [];
     let clone = [...questionBank];
@@ -41,6 +68,7 @@ function pickRandomQuestions() {
         clone.splice(randomIndex, 1);
     }
 }
+
 
 
 function startSurvey() {
@@ -205,21 +233,6 @@ function checkMonthReset() {
         alert("Nuevo mes 💡 Los datos anteriores se han reseteado.");
         location.reload();
     }
-}
-let userArea = null;
-
-function startSession() {
-    const select = document.getElementById("user-area");
-    userArea = select.value;
-
-    if (!userArea) {
-        alert("Por favor selecciona un área.");
-        return;
-    }
-
-    document.getElementById("login-box").style.display = "none";
-
-    startSurvey();
 }
 
 
