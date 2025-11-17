@@ -41,6 +41,19 @@ window.onload = () => {
     document.getElementById("btnStartSession").addEventListener("click", startSession);
 };
 
+let isAdmin = false;
+const ADMIN_PASSWORD = "StressMap2024"; // 👉 cámbiala cuando quieras
+
+window.onload = () => {
+    document.getElementById("areaModal").style.display = "flex";
+
+    document.getElementById("btnStartSession").addEventListener("click", startSession);
+    document.getElementById("btnAdminAccess").addEventListener("click", showAdminInput);
+    document.getElementById("btnAdminLogin").addEventListener("click", adminLogin);
+};
+
+
+
 function startSession() {
     const select = document.getElementById("user-area");
     userArea = select.value;
@@ -55,6 +68,25 @@ function startSession() {
 
     // Iniciar encuesta
     startSurvey();
+}
+
+function showAdminInput() {
+    document.getElementById("adminBox").style.display = "block";
+}
+
+function adminLogin() {
+    const input = document.getElementById("adminPass").value;
+
+    if (input !== ADMIN_PASSWORD) {
+        alert("Clave incorrecta ❌");
+        return;
+    }
+
+    // Activar modo administrador
+    isAdmin = true;
+
+    document.getElementById("areaModal").style.display = "none";
+    loadGlobalDashboard();
 }
 
 
@@ -146,7 +178,55 @@ function registerAnswer(value) {
     }
 }
 
-function calculateRisk() {
+
+async function loadGlobalDashboard() {
+
+    const { data, error } = await db
+        .from("encuestas")
+        .select("area, resultado");
+
+    if (error) {
+        console.error("Error cargando datos globales:", error);
+        return;
+    }
+
+    // Agrupar por áreas
+    const grupos = {};
+
+    data.forEach(row => {
+        if (!grupos[row.area]) grupos[row.area] = [];
+        grupos[row.area].push(row.resultado);
+    });
+
+    // Preparar valores para Chart
+    const labels = Object.keys(grupos);
+    const promedios = labels.map(area => {
+        let arr = grupos[area];
+        return arr.reduce((a,b)=>a+b) / arr.length;
+    });
+
+    let ctx = document.getElementById("stressChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Promedio por Área",
+                data: promedios,
+                borderWidth: 2
+            }]
+        }
+    });
+
+    document.getElementById("recommendations").innerHTML = `
+        <h3>Dashboard Global</h3>
+        <p>Mostrando el promedio de bienestar por cada área de la empresa.</p>
+    `;
+}
+
+
+async function calculateRisk() {
     let totalWeight = 0;
     let weightedSum = 0;
 
@@ -160,13 +240,18 @@ function calculateRisk() {
     showBotMessage("Tu índice de bienestar es: " + result.toFixed(2));
 
     saveToLocal(result);
-    saveToSupabase(result);
+
+    // 🔥 Espera que se guarde ANTES de borrar los datos
+    await saveToSupabase(result);
+
     updateDashboard(result);
     showRecommendations(result);
 
+    // 🔥 Mover el reset AL FINAL
     step = 0;
     answers = [];
 }
+
 
 async function saveToSupabase(score) {
 
@@ -236,23 +321,42 @@ function checkMonthReset() {
 }
 
 
-function updateDashboard() {
-    let data = JSON.parse(localStorage.getItem("stressData")) || [];
+async function updateDashboard() {
+
+    if (isAdmin) return; // El admin usa otro dashboard
+
+    if (!userArea) return;
+
+    const { data, error } = await db
+        .from("encuestas")
+        .select("resultado, fecha")
+        .eq("area", userArea)
+        .order("fecha", { ascending: true });
+
+    if (error) {
+        console.error("Error dashboard:", error);
+        return;
+    }
+
+    let resultados = data.map(d => d.resultado);
 
     let ctx = document.getElementById("stressChart").getContext("2d");
 
     new Chart(ctx, {
         type: "line",
         data: {
-            labels: data.map((v,i)=>"Día "+(i+1)),
+            labels: resultados.map((v, i) => "Registro " + (i+1)),
             datasets: [{
-                label: "Nivel de Bienestar Laboral",
-                data: data,
-                borderWidth: 2
+                label: "Bienestar del área: " + userArea,
+                data: resultados,
+                borderWidth: 2,
+                tension: 0.3
             }]
         }
     });
 }
+
+
 
 
 function showBotMessage(msg) {

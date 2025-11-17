@@ -11,8 +11,9 @@
 
 <div id="areaModal" class="modal">
   <div class="modal-content">
-      <h2>Selecciona tu Área</h2>
+      <h2>Selecciona tu modo de acceso</h2>
 
+      <label>Selecciona tu área:</label>
       <select id="user-area">
           <option value="">Selecciona...</option>
           <option value="TI">TI</option>
@@ -23,9 +24,21 @@
           <option value="Soporte">Soporte</option>
       </select>
 
-      <button id="btnStartSession" class="modal-btn">Iniciar</button>
+      <button id="btnStartSession" class="modal-btn">Entrar como usuario</button>
+
+      <hr>
+
+      <button id="btnAdminAccess" class="modal-btn admin-btn">
+        Ver Dashboard Global
+      </button>
+
+      <div id="adminBox" style="display:none; margin-top:10px;">
+          <input type="password" id="adminPass" placeholder="Clave de administrador">
+          <button id="btnAdminLogin" class="modal-btn">Entrar</button>
+      </div>
   </div>
 </div>
+
 
 
 

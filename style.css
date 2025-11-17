@@ -126,4 +126,15 @@ body {
     to { transform: scale(1); opacity: 1; }
 }
 
+.admin-btn {
+    background: #6a00f4;
+    margin-top: 15px;
+}
+.modal-content input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
 
