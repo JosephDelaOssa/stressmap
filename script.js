@@ -3,6 +3,10 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+console.log("URL:", SUPABASE_URL);
+console.log("KEY:", SUPABASE_KEY);
+
+
 let step = 0;
 let answers = [];
 
@@ -49,12 +53,53 @@ function startSurvey() {
 function showEmojiOptions() {
     const emojis = ["😞","😕","😐","🙂","😄"]; // 1 a 5
     let html = "<div class='emoji-buttons'>";
+
     emojis.forEach((emoji, index) => {
-        html += `<button class="emoji-btn" onclick="registerAnswer(${index+1})">${emoji}</button>`;
+        html += `
+        <button class="emoji-btn" 
+            onclick="registerAnswer(${index+1})"
+            onmouseover="showEmojiValue(${index+1}, this)"
+            onmouseout="hideEmojiValue()"
+        >
+            ${emoji}
+        </button>`;
     });
+
     html += "</div>";
     document.getElementById("chat-box").innerHTML += html;
 }
+
+function showEmojiValue(value, element) {
+    let tooltip = document.getElementById("emoji-tooltip");
+
+    if (!tooltip) {
+        tooltip = document.createElement("div");
+        tooltip.id = "emoji-tooltip";
+        tooltip.style.position = "absolute";
+        tooltip.style.padding = "6px 10px";
+        tooltip.style.background = "black";
+        tooltip.style.color = "white";
+        tooltip.style.borderRadius = "6px";
+        tooltip.style.fontSize = "14px";
+        tooltip.style.pointerEvents = "none";
+        tooltip.style.zIndex = "9999";
+        document.body.appendChild(tooltip);
+    }
+
+    tooltip.innerText = "Valor: " + value;
+
+    const rect = element.getBoundingClientRect();
+    tooltip.style.left = rect.left + "px";
+    tooltip.style.top = (rect.top - 30) + "px";
+
+    tooltip.style.display = "block";
+}
+
+function hideEmojiValue() {
+    const tooltip = document.getElementById("emoji-tooltip");
+    if (tooltip) tooltip.style.display = "none";
+}
+
 
 function registerAnswer(value) {
     showUserMessage(value);
@@ -97,10 +142,12 @@ function calculateRisk() {
 
 async function saveToSupabase(score) {
 
-    // 1. Guardamos la encuesta
     const { data: encuesta, error: e1 } = await db
         .from("encuestas")
-        .insert([{ resultado: score }])
+        .insert([{ 
+            resultado: score,
+            area: userArea   // 👉 AÑADIR ESTO
+        }])
         .select("id")
         .single();
 
@@ -111,7 +158,6 @@ async function saveToSupabase(score) {
 
     let encuesta_id = encuesta.id;
 
-    // 2. Guardar cada pregunta, peso y respuesta
     for (let i = 0; i < answers.length; i++) {
 
         const { error: e2 } = await db
@@ -120,7 +166,8 @@ async function saveToSupabase(score) {
                 encuesta_id,
                 pregunta: selectedQuestions[i].text,
                 peso: selectedQuestions[i].weight,
-                respuesta: answers[i]
+                respuesta: answers[i],
+                area: userArea   // 👉 OPCIONAL, PERO SIRVE
             }]);
 
         if (e2) console.error("Error guardando pregunta:", e2);
@@ -159,6 +206,22 @@ function checkMonthReset() {
         location.reload();
     }
 }
+let userArea = null;
+
+function startSession() {
+    const select = document.getElementById("user-area");
+    userArea = select.value;
+
+    if (!userArea) {
+        alert("Por favor selecciona un área.");
+        return;
+    }
+
+    document.getElementById("login-box").style.display = "none";
+
+    startSurvey();
+}
+
 
 function updateDashboard() {
     let data = JSON.parse(localStorage.getItem("stressData")) || [];
@@ -177,6 +240,7 @@ function updateDashboard() {
         }
     });
 }
+
 
 function showBotMessage(msg) {
     showTypingAnimation();

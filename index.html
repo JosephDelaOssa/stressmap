@@ -5,9 +5,26 @@
     <title>StressMap Bot</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+    <script src="script.js"></script>
 </head>
 <body>
+
+<div id="login-box">
+    <h3>Selecciona tu área</h3>
+
+    <select id="user-area">
+        <option value="">Selecciona...</option>
+        <option value="TI">TI</option>
+        <option value="Recursos Humanos">Recursos Humanos</option>
+        <option value="Administración">Administración</option>
+        <option value="Operaciones">Operaciones</option>
+        <option value="Ventas">Ventas</option>
+        <option value="Soporte">Soporte</option>
+    </select>
+
+    <button onclick="startSession()">Iniciar</button>
+</div>
+
 
 <div class="chat-container">
     <div id="chat-box">
@@ -26,6 +43,5 @@
 
 
 <script src="chart.min.js"></script>
-<script src="script.js"></script>
 </body>
 </html>
